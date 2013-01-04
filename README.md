@@ -1,6 +1,5 @@
 
-                    Lorica README
-          Copyright (C) 2007 OMC Denmark ApS.
+Lorica - Copyright (C) 2007 OMC Denmark ApS.
 
 In short
 ========
