@@ -15,7 +15,7 @@
 #  You should have received a copy of the GNU Affero General Public License
 #  along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-AC_INIT([lorica],[1.0.13],[bugs@42tools.com])
+AC_INIT([lorica],[1.0.13],[https://github.com/colding/lorica/issues])
 
 AC_PREREQ(2.59)
 
