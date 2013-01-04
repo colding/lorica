@@ -1,0 +1,32 @@
+//
+//  Lorica MPC file.
+//  Copyright (C) 2007-2009 OMC Denmark ApS.
+//
+//  This program is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU Affero General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  This program is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+//  GNU Affero General Public License for more details.
+//
+//  You should have received a copy of the GNU Affero General Public License
+//  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+project {
+  libout = $(LORICA_ROOT)/lib
+  libpaths += $(LORICA_ROOT)/lib
+  includes += $(LORICA_ROOT)/src
+  includes += $(LORICA_ROOT)
+
+  Define_Custom(DLL_EXPORT) {
+    automatic_in          = 0
+    automatic_out         = 1
+    command               = $(ACE_ROOT)/bin/generate_export_file.pl
+    output_option         = >
+    header_pre_extension  = _Export
+    header_outputext      = .h
+  }
+}

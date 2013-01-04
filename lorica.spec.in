@@ -1,0 +1,125 @@
+#  
+#  RPM spec file for Lorica.
+#  Copyright (C) 2007-2008 OMC Denmark ApS
+#
+#  This program is free software; you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation; either version 2 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program; if not, write to the Free Software
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, 
+#  MA 02111-1307 USA
+#
+
+Summary:         An IIOP Firewall daemon
+Name:            @LORICA_NAME@
+Version:         @LORICA_VERSION@
+Release:         1%{?dist}
+License:         GPLv2+
+Group:           Applications/Communications
+Source0:         http://www.42tools.com/sites/default/files/downloads/dist/@LORICA_NAME@/SOURCES/@LORICA_NAME@-rev@SVN_REV@.tar.gz
+BuildRoot:       %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+URL:             http://trac.42tools.com/lorica/
+Conflicts:       ace, ACE, ACE-ACE
+Requires:        openssl
+Requires(post):  /sbin/chkconfig, /sbin/service
+BuildRequires:   openssl-devel
+
+%description
+This is the Lorica. Lorica is an IIOP/CORBA Firewall build 
+upon ACE and TAO.
+
+This package contains the executable necessary for programs 
+using Lorica.
+
+You will need to install this package and lorica-devel if 
+you want to write programs which are using Lorica.
+
+%package devel
+Summary:         IDL files for Lorica
+Group:           Development/Libraries
+Requires:        %name = %{version}-%{release}
+
+%description devel 
+This is the Lorica development files. Lorica is an IIOP
+Firewall daemon. To develop programs using Lorica you need
+the Lorica IDL files. This package contain those.
+
+@RPM_SPEC_DEBUGINFO@
+%prep
+%setup -q 
+
+%build
+./bootstrap --enable-tao-build
+@RPM_SPEC_CONFIGURE@
+make %{?_smp_mflags}
+
+%install 
+rm -rf %{buildroot}
+make INSTALL="install -c -p" DESTDIR=%{buildroot} install
+find %{buildroot} -name '*.la' -exec rm {} ';'
+install -d $RPM_BUILD_ROOT/etc/init.d
+install -d $RPM_BUILD_ROOT/etc/sysconfig
+install -m755 init_rc/rhel.initd $RPM_BUILD_ROOT/etc/init.d/lorica
+install -m644 init_rc/generic.confd $RPM_BUILD_ROOT/etc/sysconfig/lorica
+
+%clean 
+rm -rf %{buildroot}
+
+%post 
+/sbin/ldconfig
+/sbin/chkconfig --add lorica
+
+%postun -p /sbin/ldconfig
+
+%preun
+/sbin/service lorica stop >/dev/null 2>&1
+/sbin/chkconfig --del lorica
+
+%files
+%defattr(-,root,root,-)
+%dir %{_localstatedir}/cache/@LORICA_NAME@
+%dir %{_docdir}/@LORICA_NAME@-@LORICA_VERSION@
+%config(noreplace) %{_sysconfdir}/lorica.conf
+%config(noreplace) %{_sysconfdir}/lorica.ssliop
+%config(noreplace) %{_sysconfdir}/sysconfig/lorica
+%{_localstatedir}/cache/@LORICA_NAME@/ifr.cache
+%{_sysconfdir}/lorica.conf
+%{_sysconfdir}/lorica.ssliop
+%{_sysconfdir}/lorica_codeset.conf
+%{_sysconfdir}/init.d/lorica
+%{_bindir}/*
+%{_sbindir}/*
+%{_libdir}/*
+%{_docdir}/@LORICA_NAME@-@LORICA_VERSION@/lorica_configuration
+%{_docdir}/@LORICA_NAME@-@LORICA_VERSION@/using_the_generic_evaluator
+%{_docdir}/@LORICA_NAME@-@LORICA_VERSION@/COPYING
+%{_docdir}/@LORICA_NAME@-@LORICA_VERSION@/README
+%{_docdir}/@LORICA_NAME@-@LORICA_VERSION@/AUTHORS
+%{_docdir}/@LORICA_NAME@-@LORICA_VERSION@/ChangeLog
+
+%files devel
+%defattr(-,root,root,-)
+%dir %{_datadir}/@LORICA_idl_install_subdir@
+%dir %{_docdir}/@LORICA_NAME@-devel-@LORICA_VERSION@
+%{_datadir}/@LORICA_idl_install_subdir@/*
+%{_docdir}/@LORICA_NAME@-devel-@LORICA_VERSION@/building_lorica
+
+%changelog
+* Wed Apr 9 2008 Jules Colding <colding@42tools.com> 0.9.9-1
+- Fix endpoint bug for defaulted values
+
+* Wed Mar 19 2008 Jules Colding <colding@42tools.com> 0.9.7-2
+- Updated Conflicts
+
+* Mon Mar 17 2008 Jules Colding <colding@42tools.com> 0.9.7-1
+- Initial RPM release
+
+

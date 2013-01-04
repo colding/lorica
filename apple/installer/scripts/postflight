@@ -1,0 +1,19 @@
+#!/bin/bash -p
+
+#echo "EUID=$EUID" 			>  /debug.install
+#echo "UID=$UID" 			>> /debug.install
+#echo "USER=$USER" 			>> /debug.install
+#echo "SUDO_USER=$SUDO_USER" >> /debug.install
+
+daemon="/Library/LaunchDaemons/com.42tools.lorica.plist"
+storage="/private/var/db/lorica"
+
+# Create the directory where Lorica stores persisten files
+mkdir -p $storage
+
+# PackageMaker changes the premission of the launch file..
+chmod 644 $daemon
+
+# Restart Lorica
+launchctl unload $daemon
+launchctl load $daemon

@@ -1,0 +1,119 @@
+#!/bin/bash
+
+#  Creates a disk image contaning Lorica and Mac OS X support tools.
+#  Copyright (C) 2007-2009 OMC Denmark ApS.
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU Affero General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#  GNU Affero General Public License for more details.
+#
+#  You should have received a copy of the GNU Affero General Public License
+#  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+export APP_NAME="Lorica"
+export BUILD="$(pwd)/$APP_NAME.build"
+export DIST="$BUILD/dist"
+export ROOT="$BUILD/root"
+
+# delete old build files
+if [ -d "$BUILD" ]; then 
+    chmod -R u+w "$BUILD"
+    rm -rf "$BUILD"
+fi
+
+# create project folders
+mkdir -p "$BUILD"
+mkdir -p "$DIST"
+mkdir -p "$ROOT"
+
+# configure
+pushd ..
+(
+    ./bootstrap reconf --disable-tests-build --enable-tao-build --enable-lorica-devel --enable-lorica-target=darwin --prefix=/usr --sysconfdir=/private/etc
+    exit $?
+)
+retv=$?
+wait
+if [ ! "$retv" -eq 0 ]; then 
+    echo "Could not bootstrap Lorica installation"
+    exit 1
+fi
+
+###################################################
+#                                                 #
+#                   make install                  #
+#                                                 #
+###################################################
+(
+    make && make DESTDIR="$ROOT" install
+    exit $?
+)
+retv=$?
+wait
+if [ ! "$retv" -eq 0 ]; then 
+    echo "Could not stage installation of Lorica"
+    exit 1
+fi
+popd
+
+
+###################################################
+#                                                 #
+#            create installer package             #
+#                                                 #
+###################################################
+pushd installer
+(
+    ./build
+    exit $?
+)
+retv=$?
+wait
+if [ ! "$retv" -eq 0 ]; then 
+    echo "Could not create installer package"
+    exit 1
+fi
+popd
+
+###################################################
+#                                                 #
+#          create uninstaller application         #
+#                                                 #
+###################################################
+pushd uninstaller
+(
+    ./build
+    exit $?
+)
+retv=$?
+wait
+if [ ! "$retv" -eq 0 ]; then 
+    echo "Could not create uninstaller application"
+    exit 1
+fi
+popd
+
+
+###################################################
+#                                                 #
+#               create disk image                 #
+#                                                 #
+###################################################
+pushd diskimage
+(
+    ./build
+    exit $?
+)
+retv=$?
+wait
+if [ ! "$retv" -eq 0 ]; then 
+    echo "Could not create disk image"
+    exit 1
+fi
+popd

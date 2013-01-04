@@ -1,0 +1,24 @@
+
+                    Lorica README
+          Copyright (C) 2008 OMC Denmark ApS.
+
+Your rights
+===========
+
+Copying and distribution of this file, with or without 
+modification, are permitted in any medium without royalty 
+provided the copyright notice and this notice are preserved.
+
+Test
+====
+This test simply starts the proxy, then starts a server which it
+binds in the server IOR table. The client is started and connects to 
+the proxy requesting a mapped reference in place of the reference 
+found by using the CORBALOC string identifying the server.  The test 
+succeeds if the returned reference is not nil and operational.
+
+	To run the test use the run_test.pl script:
+
+$ ./run_test.pl
+
+	the script returns 0 if the test was successful.
